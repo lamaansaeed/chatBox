@@ -27,6 +27,10 @@ document.getElementById('signupForm').addEventListener('submit', async function(
 
         // Display response message
         document.getElementById('responseMessage').textContent = result.message;
+        if(result.success){
+            window.location.href = '/login.html'
+        }
+        
     } catch (error) {
         console.error('Error:', error);
     }
