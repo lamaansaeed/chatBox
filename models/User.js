@@ -29,10 +29,10 @@ const User = sequelize.define('user', {
     },
     
 });
-// User.associate = (models) => {
-//     User.hasMany(models.Expense, { foreignKey: 'userId', onDelete: 'CASCADE', as: 'expense' });
+User.associate = (models) => {
+     User.hasMany(models.Message, { foreignKey: 'userId', onDelete: 'CASCADE', as: 'message' });
 //     User.hasMany(models.Order, { foreignKey: 'userId', onDelete: 'CASCADE', as: 'order' });
 //     User.hasMany(models.Income,  {foreignKey:'userId',onDelete: 'CASCADE', as: 'income'})
-// };
+ };
 
 module.exports = User;

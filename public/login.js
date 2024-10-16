@@ -29,11 +29,11 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 
         document.getElementById('responseMessage').textContent = result.message;
 
-        if (result.success) {
+        if (result.success && result.token) {
             // Store JWT token in localStorage
             localStorage.setItem('token', result.token);
            // 
-           // window.location.href = '/expense.html'; // Redirect after successful login
+            window.location.href = '/home.html'; // Redirect after successful login
         }
     } catch (error) {
         console.error('Error:', error);

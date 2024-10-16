@@ -26,7 +26,9 @@ sequelize.sync({ alter: true })
 //     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 // });
 const userRoutes = require('./routes/user');
+const messageRoutes = require('./routes/message');
 app.use('/', userRoutes);
+app.use('/api/messages', messageRoutes);
 app.listen(PORT,'0.0.0.0', () => {
     console.log(`Secure server is running on https://localhost:${PORT}`);
 });
