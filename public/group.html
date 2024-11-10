@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Groups</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <h2>Create a New Group</h2>
+
+    <form id="groupForm">
+        <label for="groupName">Group Name:</label>
+        <input type="text" id="groupName" name="groupName" placeholder="Enter group name" required />
+        <button type="submit">Create Group</button>
+    </form>
+
+    <div id="message"></div>
+
+    <hr>
+
+    <!-- List of groups the user owns -->
+    <h3>Your Groups</h3>
+    <ul id="ownedGroupsList"></ul>
+
+    <!-- List of groups the user is a member of -->
+    <h3>Groups You Are a Member Of</h3>
+    <ul id="memberGroupsList"></ul>
+
+    <!-- Chat section (hidden initially) -->
+    <div id="chatContainer" style="display: none;">
+        <h3 id="groupTitle"></h3>
+        <div id="chatbox"></div>
+        <input type="text" id="messageInput" placeholder="Type a message..." />
+        <button id="sendBtn">Send</button>
+    </div>
+
+    <script src="group.js"></script>
+</body>
+</html>

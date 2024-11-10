@@ -27,12 +27,19 @@ const User = sequelize.define('user', {
         type: DataTypes.BOOLEAN,
         defaultValue: false // Users are not premium by default
     },
+    userStatus:{
+        type: DataTypes.ENUM('loggedIn','loggedOut'),
+    }
     
 });
 User.associate = (models) => {
      User.hasMany(models.Message, { foreignKey: 'userId', onDelete: 'CASCADE', as: 'message' });
-//     User.hasMany(models.Order, { foreignKey: 'userId', onDelete: 'CASCADE', as: 'order' });
-//     User.hasMany(models.Income,  {foreignKey:'userId',onDelete: 'CASCADE', as: 'income'})
- };
+
+      // User has many groups (through GroupUsers table)
+    User.hasMany(models.GroupUser, { as:'groupuser', foreignKey: 'userId' });
+
+    // A user can own many groups
+    User.hasMany(models.Group, { as: 'groups', foreignKey: 'userId' });
+};
 
 module.exports = User;

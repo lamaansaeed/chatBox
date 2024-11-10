@@ -8,15 +8,50 @@
 <body>
     <h2>Welcome to the Chat</h2>
 
+    <!-- Search for Users -->
+    <div id="searchContainer">
+        <input type="text" id="searchInput" placeholder="Search for a user..." />
+        <button id="searchBtn">Search</button>
+    </div>
+    
+    <!-- Display Search Results -->
+    <div id="searchResults">
+        <ul id="resultsList"></ul>
+    </div>
+
     <div id="onlineUsers">
         <h3>Users Online:</h3>
         <ul id="usersList"></ul>
+    </div>
+
+    <div id="logoutContainer">
+        <button id="logout">LogOut</button>
     </div>
 
     <div id="chatContainer">
         <div id="chatbox"></div>
         <input type="text" id="messageInput" placeholder="Type a message..." />
         <button id="sendBtn">Send</button>
+    </div>
+
+    <!-- Create Group Button -->
+    <div id="createGroupContainer">
+        <button id="createGroupBtn">Create Group</button>
+    </div>
+    <div>
+        <button id="goToGroupsBtn">Go to Groups</button>
+    </div>
+
+    <!-- Received Group Invitations -->
+    <div id="receivedInvitations">
+        <h3>Received Group Invitations</h3>
+        <ul id="receivedList"></ul>
+    </div>
+
+    <!-- Sent Group Invitations -->
+    <div id="sentInvitations">
+        <h3>Sent Group Invitations</h3>
+        <ul id="sentList"></ul>
     </div>
 
     <script src="home.js"></script>

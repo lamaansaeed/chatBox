@@ -23,14 +23,18 @@ const Message = sequelize.define('Message', {
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: 'users', // Ensure the model name is correct
-            key: 'userId'
-        }
+        
+    },
+    groupId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        
+        onDelete: 'CASCADE'
     }
 });
 Message.associate = (models) => {
-    Message.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+    Message.belongsTo(models.User, { foreignKey: 'userId', as: 'usermessage' });
+    Message.belongsTo(models.Group, { foreignKey: 'groupId', as: 'group' });
 };
 
 module.exports = Message;

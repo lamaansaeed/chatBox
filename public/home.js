@@ -1,7 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
     const chatbox = document.getElementById('chatbox');
     const messageInput = document.getElementById('messageInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const resultsList = document.getElementById('resultsList');
+    const receivedList = document.getElementById('receivedList');
+    const sentList = document.getElementById('sentList');
     const sendBtn = document.getElementById('sendBtn');
+    const logoutBtn = document.getElementById('logout');
     const MESSAGE_STORAGE_KEY = 'last10Messages';
     let lastMessages = JSON.parse(localStorage.getItem(MESSAGE_STORAGE_KEY)) || []; // Load from localStorage
 
@@ -15,6 +21,157 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+// Display search results in the searchResults list
+async function displaySearchResults(users) {
+    resultsList.innerHTML = ''; // Clear previous results
+    if (users.length === 0) {
+        const noResultElement = document.createElement('li');
+        noResultElement.textContent = 'No users found.';
+        resultsList.appendChild(noResultElement);
+        return;
+    }
+    
+    users.forEach((user) => {
+        const userElement = document.createElement('li');
+        userElement.textContent = user.name;
+        userElement.classList.add('clickable');  // Add class to make it clickable
+
+        // Attach click event listener to redirect to user.html with user details
+        userElement.addEventListener('click', () => {
+            // Save user data in localStorage for passing between pages
+            localStorage.setItem('viewedUser', JSON.stringify(user));
+            window.location.href = 'user.html';  // Redirect to user.html
+        });
+
+        resultsList.appendChild(userElement);
+    });
+}
+// Fetch and display invitations
+async function loadInvitations() {
+    const token = localStorage.getItem('token');
+    try {
+        // Fetch sent invitations
+        let response = await fetch('/api/invitations/sent', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const sentInvitations = await response.json();
+        displaySentInvitations(sentInvitations);
+        // Fetch received invitations
+         response = await fetch('/api/invitations/received', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const receivedInvitations = await response.json();
+        displayReceivedInvitations(receivedInvitations);
+
+        
+
+    } catch (error) {
+        console.error('Error loading invitations:', error);
+    }
+}
+
+// Display received invitations
+function displayReceivedInvitations(invitations) {
+    receivedList.innerHTML = '';
+    invitations.forEach(invite => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${invite.ownerName} - ${invite.groupName}`;
+
+        const acceptBtn = document.createElement('button');
+        acceptBtn.textContent = 'Accept';
+        acceptBtn.addEventListener('click', () => acceptInvitation(invite.id));
+
+        const rejectBtn = document.createElement('button');
+        rejectBtn.textContent = 'Reject';
+        rejectBtn.addEventListener('click',()=>cancelInvitation(invite.id))
+
+        listItem.appendChild(acceptBtn);
+        receivedList.appendChild(listItem);
+    });
+}
+
+// Display sent invitations
+function displaySentInvitations(invitations) {
+    sentList.innerHTML = '';
+    invitations.forEach(invite => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${invite.groupName} - ${invite.receiverName}`;
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.addEventListener('click', () => cancelInvitation(invite.id));
+
+        listItem.appendChild(cancelBtn);
+        sentList.appendChild(listItem);
+    });
+}
+
+// Accept an invitation
+async function acceptInvitation(inviteId) {
+    const token = localStorage.getItem('token');
+    try {
+        const response = await fetch(`/api/invitations/${inviteId}/accept`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+            loadInvitations();
+        } else {
+            console.error('Error accepting invitation');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// Cancel an invitation
+async function cancelInvitation(inviteId) {
+    const token = localStorage.getItem('token');
+    try {
+        const response = await fetch(`/api/invitations/${inviteId}/cancel`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+            loadInvitations();
+        } else {
+            console.error('Error canceling invitation');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// Initial load
+loadInvitations();
+
+
+// Search for users by name
+ searchBtn.addEventListener('click', async () => {
+    const query = searchInput.value.trim();
+    const token = localStorage.getItem('token');
+    
+    if (query) {
+        try {
+            const response = await fetch(`/api/users/search?query=${encodeURIComponent(query)}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            const users = await response.json();
+            displaySearchResults(users);
+        } catch (error) {
+            console.error('Error fetching search results:', error);
+        }
+    } else {
+        alert('Please enter a search query.');
+    }
+});
     // Fetch new messages from the server
 async function loadMessages() {
     try {
@@ -41,7 +198,29 @@ async function loadMessages() {
         console.error('Error fetching messages:', error);
     }
 }
+//Send a new message 
+logoutBtn.addEventListener('click', async () =>{
+    const token = localStorage.getItem('token');
+    try{
+        const response = await fetch('/api/messages/logout',{
+            method: 'PUT',
+            headers:{
+                'Content-type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body:JSON.stringify({userStatus:'loggedOut'})
+        });
+        if(!response.ok){
+            throw new Error(`server error:${response.status}`)
+        }else{
+            localStorage.removeItem('token');
+            window.location.href = '/login.html'
+        }
 
+    }catch (error) {
+        console.error('Failed to logout:', error);
+    }
+})
 
     // Send a new message
     sendBtn.addEventListener('click', async () => {
@@ -60,6 +239,7 @@ async function loadMessages() {
                 });
 
                 if (!response.ok) {
+                    console.log(error);
                     throw new Error(`Server error: ${response.status}`);
                 }
 
@@ -79,4 +259,9 @@ async function loadMessages() {
     // Initial load of messages from localStorage
     displayMessages(lastMessages);
 });
-  
+ 
+
+  // Redirect to group.html when clicking the "Create Group" button
+  document.getElementById('createGroupBtn').addEventListener('click', function() {
+    window.location.href = 'group.html';
+});

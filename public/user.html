@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Details</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>User Details</h1>
+    <div id="userInfo">
+        <p><strong>Name:</strong> <span id="username"></span></p>
+        <p><strong>Email:</strong> <span id="userEmail"></span></p>
+    </div>
+    <button id="messageBtn">Message</button>
+    <button id="showGroupsBtn">Show Groups</button>
+    
+    <div id="groupsSection" style="display:none;">
+        <h2>Groups Owned by you</h2>
+        <ul id="groupList"></ul>
+    </div>
+    
+  <button id="showUserGroup">Show Groups associated with this account </button>
+  <div id="userGroupSection" style="display: none;">
+    <h2>Groups Owned by User </h2>
+    <ul id="userGroupList"></ul>
+  </div>
+    <script src="user.js"></script>
+</body>
+</html>

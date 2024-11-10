@@ -5,9 +5,12 @@ const messageController = require('../controllers/messageControllers');
 const authenticateToken = require('../middelware/authMiddleware');
 
 // Route to fetch all messages (no authentication needed)
-router.get('/', messageController.getAllMessages);
+router.get('/api/messages', messageController.getAllMessages);
 
 // Route to send a new message (authentication required)
-router.post('/', authenticateToken, messageController.sendMessage);
+router.post('/api/messages', authenticateToken, messageController.sendMessage);
 
+router.put('/logout',authenticateToken,messageController.logOut);
+
+router.get('/api/users/search', authenticateToken,messageController.searchUser);
 module.exports = router;

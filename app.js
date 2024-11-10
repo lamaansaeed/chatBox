@@ -14,6 +14,18 @@ const PORT = process.env.SERVER_PORT ||443; // Use 443 for HTTPS
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
+const models = {
+    GroupUser: require('./models/GroupUser'),
+    GroupInvitation: require('./models/GroupInvitation'),
+    User: require('./models/User'),
+    Message: require('./models/Message'),
+    Group: require('./models/Group')
+};
+Object.values(models).forEach((model) => {
+    if (model.associate) {
+        model.associate(models);
+    }
+});
 sequelize.sync({ alter: true })
     .then(() => {
         console.log('Database synced successfully');
@@ -27,8 +39,10 @@ sequelize.sync({ alter: true })
 // });
 const userRoutes = require('./routes/user');
 const messageRoutes = require('./routes/message');
+const groupRoutes = require('./routes/group');
 app.use('/', userRoutes);
-app.use('/api/messages', messageRoutes);
+app.use('/',groupRoutes);
+app.use('/', messageRoutes);
 app.listen(PORT,'0.0.0.0', () => {
     console.log(`Secure server is running on https://localhost:${PORT}`);
 });
