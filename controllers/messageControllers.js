@@ -5,9 +5,11 @@ const { Op } = require('sequelize'); // Import Op from Sequelize
 // Controller to fetch all messages
 exports.getAllMessages = async (req, res) => {
     try {
-        const messages = await Message.findAll({ order: [['createdAt', 'ASC']] });
+        const groupId= null;
+        const messages = await Message.findAll({ where:{groupId:groupId},order: [['createdAt', 'ASC']] });
         res.json(messages);
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: 'Failed to fetch messages' });
     }
 };

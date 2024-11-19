@@ -63,29 +63,29 @@ exports.fetchGroup = async (req, res) => {
   const userId = req.user.userId;
 
   try {
-    const Groups = await Group.findAll({ where: { userId } });
+    const groupUsers = await GroupUser.findAll({ where: { userId } });
 
     const ownedGroups = [];
     const memberGroups = [];
-    for (const group of Groups) {
-      const grp = await GroupUser.findOne({
-        where: { groupId: group.groupId },
-      });
+    for (const groupUser of groupUsers) {
+      // const grp = await GroupUser.findOne({
+      //   where: { groupId: group.groupId },
+      // });
 
-      if (grp.role === "owner") {
+      if (groupUser.role === "owner") {
         var ownerOfGroup = await Group.findOne({
-          where: { groupId: grp.groupId },
+          where: { groupId: groupUser.groupId },
         });
         ownedGroups.push(ownerOfGroup);
       } else {
         var memberOfGroup = await Group.findOne({
-          where: { groupId: grp.groupId },
+          where: { groupId: groupUser.groupId },
         });
         memberGroups.push(memberOfGroup);
       }
     }
 
-    console.log(ownedGroups);
+    
     res.json({
       ownedGroups,
       memberGroups, // Extract group info
@@ -100,9 +100,9 @@ exports.fetchGroupMessage = async (req, res) => {
 
   try {
     const messages = await Message.findAll({
-      where: { groupId },
-      limit: 10,
-      order: [["createdAt", "DESC"]],
+      where: { groupId:groupId },
+      
+      order: [["createdAt", "ASC"]],
     });
     res.json(messages);
   } catch (error) {
@@ -113,12 +113,15 @@ exports.sendGroupMessage = async (req, res) => {
   const { content } = req.body;
   const groupId = req.params.groupId;
   const userId = req.user.userId;
-  const username = req.user.username;
+  const user = await User.findOne({where:{userId:userId}});
+  const username= user.name;
+  console.log(username);
 
   try {
     await Message.create({ content, groupId, userId, username });
     res.status(200).send();
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Failed to send message" });
   }
 };
@@ -242,12 +245,14 @@ exports.fetchSentInvitaions = async (req, res) => {
 
                   sentInvitations.push({
                       groupName: group.name,
-                      receiverName: receiver.name
+                      receiverName: receiver.name,
+                      inviteId:groupUser.dataValues.groupinvite.groupInviteId,
                   });
               }
           }
           
       }
+      console.log(sentInvitations);
       res.status(200).json(sentInvitations);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch invitations" });
@@ -276,11 +281,45 @@ for(let groupUser of groupUsers){
   const groupOwner = await User.findOne({where:{userId: groupDetails.userId},attributes:["name"]})
   receivedInvitations.push({
     groupName: groupDetails.name,
-    ownerName: groupOwner.name
+    ownerName: groupOwner.name,
+    inviteId: groupUser.groupinvite.groupInviteId
 });
 }
 res.status(200).json(receivedInvitations);
 } catch (error) {
   res.status(500).json({ error: "Failed to fetch invitations" });
 }
+}
+  
+exports.cancleInvitation = async (req, res)=>{
+  const groupInviteId = req.query.inviteId;
+  try {
+    const groupInvite = await GroupInvitation.findOne({where:{
+      groupInviteId:groupInviteId,
+    }})
+    const groupUser = await GroupUser.findOne({where :{groupUserId:groupInvite.groupUserId}});
+    groupInvite.destroy();
+    groupUser.destroy();
+    res.status(200).json("Invite is deleted");
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete invite" });
+  }
+}
+
+exports.acceptInvitation = async (req, res)=>{
+  const groupInviteId = req.params.inviteId;
+  console.log(groupInviteId);
+  try{
+    const groupInvite = await GroupInvitation.findOne({where:{
+      groupInviteId:groupInviteId,
+    }})
+    const groupUser = await GroupUser.findOne({where :{groupUserId:groupInvite.groupUserId}});
+    groupUser.role= 'member';
+    groupUser.save();
+    groupInvite.destroy();
+    res.status(200).json('now you are member of group'); 
+  } catch(error){
+    console.log(error);
+    res.status(500).json({error: 'something went wrong while accepting invitation'});
+  }
 }

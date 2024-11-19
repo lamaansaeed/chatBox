@@ -42,7 +42,7 @@ exports.login = async (req, res) => {
         if (match) {
             user.userStatus = 'loggedIn';
             user.save();
-            const token = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            const token = jwt.sign({ userId: user.userId,name:user.name }, process.env.JWT_SECRET, { expiresIn: '1h' });
             return res.json({ message: 'Login successful', success: true, token });
         } else {
             return res.status(401).json({ message: 'Invalid credentials', success: false });

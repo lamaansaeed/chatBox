@@ -1,7 +1,6 @@
-// middleware/authMiddleware.js
-const jwt = require('jsonwebtoken');
+const verifyToken = require('../utils/verifyToken');
 
-const authenticateToken = (req, res, next) => {
+const authenticateToken = async (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
@@ -9,13 +8,13 @@ const authenticateToken = (req, res, next) => {
         return res.sendStatus(401); // Unauthorized
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) {
-            return res.sendStatus(403); // Forbidden
-        }
+    try {
+        const user = await verifyToken(token);
         req.user = user;
         next();
-    });
+    } catch (err) {
+        return res.sendStatus(403); // Forbidden
+    }
 };
 
 module.exports = authenticateToken;

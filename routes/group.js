@@ -17,7 +17,7 @@ router.get('/api/groups/list', authenticateToken, groupController.fetchGroup);
 router.get('/api/groups/messages/:groupId', authenticateToken, groupController.fetchGroupMessage);
 
 // Send a message to a group
-router.post('/api/groups/messages/:groupId', authenticateToken,groupController.fetchGroupMessage);
+router.post('/api/groups/messages/:groupId', authenticateToken,groupController.sendGroupMessage);
 // get the groups the is owned by you 
 router.get('/api/groups',authenticateToken,groupController.getUserGroups);
 // get the groups of the other user 
@@ -30,4 +30,9 @@ router.get('/api/invitations/sent', authenticateToken, groupController.fetchSent
 
 //fetch recieved invitations
 router.get('/api/invitations/received',authenticateToken,groupController.fetchRecievedInvitations);
+
+//Reject invitations
+router.delete('/api/invitations/cancel/:inviteId',authenticateToken,groupController.cancleInvitation);
+//accept Invitations
+router.put('/api/invitations/accept/:inviteId',authenticateToken,groupController.acceptInvitation);
 module.exports = router;
